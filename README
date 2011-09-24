@@ -1,0 +1,17 @@
+Adblock HTTP proxy server for iplex.pl movies
+
+Iplex.pl is a movie-streaming site using some Java-based movie player. You have to watch a ton of ads
+before watching a movie. And I don't like ads. 
+
+Iplex-adblock is a HTTP proxy server that rewrites http://www.iplex.pl/player_feed/ XML documents, removing ads
+from them.
+
+Requirements:
+  - python 2.x
+  - Twisted ( http://twistedmatrix.com/trac/ ) 
+ 
+Usage:
+  1. $ src/start_proxy.py 8080
+  2. Set your HTTP proxy to 127.0.0.1:8080
+  3. Point your browser http://www.iplex.pl 
+  4. Enjoy!
