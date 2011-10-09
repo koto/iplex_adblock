@@ -10,17 +10,8 @@ Will probably work for other sites using vividas.com player
 '''
 import BufferingProxyClient
 import re
-from xml.etree.ElementTree import ElementTree, XMLTreeBuilder, tostring
+import IplexRewriter
 from twisted.python import log
-
-class ElementTreeFromString(ElementTree):
-
-    def parse(self, source, parser=None):
-        if not parser:
-            parser = XMLTreeBuilder()
-        parser.feed(source)
-        self._root = parser.close()
-        return self._root
         
 class IplexProxyClient(BufferingProxyClient.BufferingProxyClient):
     
@@ -30,38 +21,6 @@ class IplexProxyClient(BufferingProxyClient.BufferingProxyClient):
         return False
     
     def rewriteResponse(self):
-        tree = ElementTreeFromString()
-        tree.parse(self.buffer)
-        self.removeSequenceItems(tree)
-        self.removeMediaItems(tree)
-        
-        self.buffer = tostring(tree.getroot(),'utf-8')
+        rewriter = IplexRewriter.IplexRewriter(log)
+        self.buffer = rewriter.rewrite(self.buffer)
 
-    def removeMediaItems(self, tree):
-        container = tree.find('//Media')
-        count = 0
-        total = 0
-        for el in tree.findall('//MediaItem'):
-            total = total + 1 
-            if re.match('A',el.get('id')):
-                container.remove(el) # remove ads
-                count = count + 1
-            else:
-                el.set('type', 'primary')
-        
-        log.msg("Total media items: " + str(total)+ ", removed " + str(count))        
-
-    def removeSequenceItems(self, tree):
-        container = tree.find('//Sequence')
-        count = 0
-        total = 0
-        for el in tree.findall('//SequenceItem'):
-            total = total + 1 
-            if re.match('A',el.get('id')):
-                container.remove(el) # remove ads
-                count = count + 1
-            else:
-                el.set('type', 'primary')
-        
-        log.msg("Total sequence items: " + str(total)+ ", removed " + str(count))        
-        
